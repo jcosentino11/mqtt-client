@@ -9,7 +9,7 @@ on:
       - main
 
 jobs:
-  build:
+  test:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -19,7 +19,7 @@ jobs:
         run: sudo apt-get install clang-format
 
       - name: Set up CMake
-        uses: lukka/get-cmake@v1
+        uses: lukka/get-cmake@latest
 
       - name: Run tests
         run: make test
