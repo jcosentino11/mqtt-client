@@ -1,1 +1,1 @@
-# Toy MQTT Client
+# MQTT Client
