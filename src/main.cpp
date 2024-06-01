@@ -3,24 +3,24 @@
 #include <iostream>
 #include <string>
 
-using namespace MqttClient::Context;
+using namespace MqttClient;
 
 int main(int argc, char *argv[]) {
-    auto parseResult = parse(argc, argv);
-    switch (parseResult.status) {
-    case ParseResultStatus::HELP:
+    auto res = parseContext(argc, argv);
+    switch (res.code) {
+    case ParseResultCode::HELP:
         std::cout << USAGE;
         return 0;
-    case ParseResultStatus::FAILURE:
-        std::cerr << parseResult.error << "\n";
+    case ParseResultCode::FAILURE:
+        std::cerr << res.error << "\n";
         std::cout << USAGE;
         return 1;
-    case ParseResultStatus::SUCCESS:
+    case ParseResultCode::SUCCESS:
         // carry on
         break;
     }
 
-    auto context = parseResult.context;
+    auto context = res.context;
 
     if (context.verbose) {
         std::cout << "Context[command=" << context.command
