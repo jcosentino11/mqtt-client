@@ -20,7 +20,7 @@ struct ParseResult {
     Context context;
 };
 
-ParseResult parse(int argc, char *argv[]);
+ParseResult parse(int argc, char *argv[]) noexcept;
 
 const std::string USAGE = R"(
 Usage: mqtt pub -t <topic> [-v] <message>

@@ -5,7 +5,7 @@
 
 namespace MqttClient {
 namespace Context {
-ParseResult parse(int argc, char *argv[]) {
+ParseResult parse(int argc, char *argv[]) noexcept {
     if (argc < 2) {
         return {ParseResultStatus::FAILURE};
     }
