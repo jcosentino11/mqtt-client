@@ -17,6 +17,7 @@ int main(int argc, char *argv[]) {
         return 1;
     case ParseResultStatus::SUCCESS:
         // carry on
+        break;
     }
 
     auto context = parseResult.context;
