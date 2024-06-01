@@ -8,6 +8,7 @@ struct Context {
     std::string command;
     std::string topic;
     std::string message;
+    std::string address;
     bool verbose;
 };
 
@@ -22,14 +23,15 @@ struct ParseResult {
 ParseResult parseContext(int argc, char *argv[]) noexcept;
 
 const std::string USAGE = R"(
-Usage: mqtt pub -t <topic> [-v] <message>
+Usage: mqtt pub [-v] -t <topic> -a <address> <message>
 Options:
-  -t, --topic <topic>   Specify the topic to publish to
-  -v, --verbose         Enable verbose output
-  -h, --help            Show this help message
+  -t, --topic <topic>      Specify the topic to publish to (required)
+  -a, --address <address>  <host>[:<port>] address to connect to (required)
+  -v, --verbose            Enable verbose output
+  -h, --help               Show this help message
 
 Example:
-  mqtt pub -t hello/topic -v '{"hello": "world"}'
+  mqtt pub -t hello/topic -v -a 127.0.0.1:8883 '{"hello": "world"}'
 )";
 
 }; // namespace MqttClient
