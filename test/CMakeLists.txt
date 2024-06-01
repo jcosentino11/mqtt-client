@@ -9,13 +9,15 @@ FetchContent_MakeAvailable(googletest)
 
 enable_testing()
 
-file(GLOB_RECURSE TEST_SOURCES *.cpp)
+file(GLOB_RECURSE TEST_SOURCES *.cpp ${CMAKE_SOURCE_DIR}/src/*.cpp ${CMAKE_SOURCE_DIR}/include/*.h)
+list(REMOVE_ITEM TEST_SOURCES ${CMAKE_SOURCE_DIR}/src/main.cpp)
+
 add_executable(
   MqttClientTests
   ${TEST_SOURCES}
 )
 
-target_include_directories(MqttClientTests PUBLIC ./../include)
+target_include_directories(MqttClientTests PUBLIC ${CMAKE_SOURCE_DIR}/include)
 
 target_link_libraries(
   MqttClientTests
