@@ -25,7 +25,7 @@ jobs:
       - name: Upload
         uses: actions/upload-artifact@v4
         with:
-          name: MyProject-${{ matrix.os }}
+          name: mqtt-${{ matrix.os }}
           path: build/mqtt*
 
     strategy:
