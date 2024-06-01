@@ -1,4 +1,5 @@
-#include <getopt.h>
+// for windows compatibility
+#include "getopt.h"
 #include <iostream>
 #include <string>
 
