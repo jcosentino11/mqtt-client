@@ -9,9 +9,7 @@ option(FLAG_BUILD_TESTS "Build unit tests" OFF)
 
 include(cmake/clang-format.cmake)
 
-include_directories(deps/include)
-
-file(GLOB_RECURSE SOURCES src/*.cpp deps/src/*.cpp)
+file(GLOB_RECURSE SOURCES src/*.cpp include/*.h)
 
 add_executable(mqtt ${SOURCES})
 target_include_directories(mqtt PUBLIC include)
