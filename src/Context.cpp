@@ -23,17 +23,21 @@ ParseResult parseContext(int argc, char *argv[]) noexcept {
     argv += 1;
 
     struct option long_options[] = {{"topic", required_argument, 0, 't'},
+                                    {"address", required_argument, 0, 'a'},
                                     {"verbose", no_argument, 0, 'v'},
                                     {"help", no_argument, 0, 'h'},
                                     {0, 0, 0, 0}};
 
     int option_index = 0;
     int option;
-    while ((option = getopt_long(argc, argv, "t:vh", long_options,
+    while ((option = getopt_long(argc, argv, "t:a:vh", long_options,
                                  &option_index)) != -1) {
         switch (option) {
         case 't':
             context.topic = optarg;
+            break;
+        case 'a':
+            context.address = optarg;
             break;
         case 'v':
             context.verbose = true;
@@ -50,6 +54,11 @@ ParseResult parseContext(int argc, char *argv[]) noexcept {
     if (context.topic.empty()) {
         // TODO more validations
         return {ParseResultCode::FAILURE, "Error: Topic is required"};
+    }
+
+    if (context.address.empty()) {
+        // TODO more validations
+        return {ParseResultCode::FAILURE, "Error: Address is required"};
     }
 
     if (optind == argc) {

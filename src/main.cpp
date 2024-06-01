@@ -25,6 +25,7 @@ int main(int argc, char *argv[]) {
     if (context.verbose) {
         std::cout << "Context[command=" << context.command
                   << ", topic=" << context.topic
+                  << ", address=" << context.address
                   << ", message=" << context.message << "]\n";
     }
 
