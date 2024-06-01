@@ -39,13 +39,10 @@ ParseResult parse(int argc, char *argv[]) noexcept {
             context.verbose = true;
             break;
         case 'h':
-            std::cout << USAGE;
             return {ParseResultStatus::HELP};
         case '?':
-            std::cout << USAGE;
             return {ParseResultStatus::FAILURE};
         default:
-            std::cout << USAGE;
             return {ParseResultStatus::FAILURE};
         }
     }
@@ -61,10 +58,6 @@ ParseResult parse(int argc, char *argv[]) noexcept {
 
     auto numMessages = argc - optind;
     if (numMessages > 1) {
-        std::cerr << "Error: " << numMessages
-                  << " messages were provided. Currently, only 1 message at a "
-                     "time is supported\n";
-        std::cout << USAGE;
         return {ParseResultStatus::FAILURE,
                 "Error: " + std::to_string(numMessages) +
                     " messages were provided. Currently, only 1 message at a "
