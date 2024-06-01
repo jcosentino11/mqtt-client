@@ -4,7 +4,6 @@
 
 namespace MqttClient {
 
-namespace Context {
 struct Context {
     std::string command;
     std::string topic;
@@ -12,15 +11,15 @@ struct Context {
     bool verbose;
 };
 
-enum ParseResultStatus { SUCCESS, FAILURE, HELP };
+enum ParseResultCode { SUCCESS, FAILURE, HELP };
 
 struct ParseResult {
-    ParseResultStatus status;
+    ParseResultCode code;
     std::string error;
     Context context;
 };
 
-ParseResult parse(int argc, char *argv[]) noexcept;
+ParseResult parseContext(int argc, char *argv[]) noexcept;
 
 const std::string USAGE = R"(
 Usage: mqtt pub -t <topic> [-v] <message>
@@ -32,6 +31,5 @@ Options:
 Example:
   mqtt pub -t hello/topic -v '{"hello": "world"}'
 )";
-} // namespace Context
 
 }; // namespace MqttClient

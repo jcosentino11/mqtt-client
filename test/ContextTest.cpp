@@ -2,11 +2,11 @@
 #include "Context.h"
 #include <gtest/gtest.h>
 
-using namespace MqttClient::Context;
+using namespace MqttClient;
 
 TEST(ContextTest, NoArgs) {
-    auto result = parse(0, {});
-    EXPECT_EQ(ParseResultStatus::FAILURE, result.status);
+    auto res = parseContext(0, {});
+    EXPECT_EQ(ParseResultCode::FAILURE, res.code);
 }
 
 // TODO more cases

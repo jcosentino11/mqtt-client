@@ -4,17 +4,17 @@
 #include <string>
 
 namespace MqttClient {
-namespace Context {
-ParseResult parse(int argc, char *argv[]) noexcept {
+
+ParseResult parseContext(int argc, char *argv[]) noexcept {
     if (argc < 2) {
-        return {ParseResultStatus::FAILURE};
+        return {ParseResultCode::FAILURE};
     }
 
     Context context;
     context.command = argv[1];
 
     if (context.command != "pub") {
-        return {ParseResultStatus::FAILURE,
+        return {ParseResultCode::FAILURE,
                 "Unknown command: " + context.command};
     }
 
@@ -39,26 +39,26 @@ ParseResult parse(int argc, char *argv[]) noexcept {
             context.verbose = true;
             break;
         case 'h':
-            return {ParseResultStatus::HELP};
+            return {ParseResultCode::HELP};
         case '?':
-            return {ParseResultStatus::FAILURE};
+            return {ParseResultCode::FAILURE};
         default:
-            return {ParseResultStatus::FAILURE};
+            return {ParseResultCode::FAILURE};
         }
     }
 
     if (context.topic.empty()) {
         // TODO more validations
-        return {ParseResultStatus::FAILURE, "Error: Topic is required"};
+        return {ParseResultCode::FAILURE, "Error: Topic is required"};
     }
 
     if (optind == argc) {
-        return {ParseResultStatus::FAILURE, "Error: Message is required"};
+        return {ParseResultCode::FAILURE, "Error: Message is required"};
     }
 
     auto numMessages = argc - optind;
     if (numMessages > 1) {
-        return {ParseResultStatus::FAILURE,
+        return {ParseResultCode::FAILURE,
                 "Error: " + std::to_string(numMessages) +
                     " messages were provided. Currently, only 1 message at a "
                     "time is supported"};
@@ -66,7 +66,7 @@ ParseResult parse(int argc, char *argv[]) noexcept {
 
     context.message = argv[optind];
 
-    return {ParseResultStatus::SUCCESS, {}, context};
+    return {ParseResultCode::SUCCESS, {}, context};
 }
-} // namespace Context
+
 } // namespace MqttClient
