@@ -20,4 +20,4 @@ test:
 	@mkdir -p $(BUILD_DIR)
 	cd $(BUILD_DIR) && cmake .. -DFLAG_BUILD_TESTS=ON
 	@$(MAKE) -C $(BUILD_DIR)
-	@cd build/test && ctest
+	@cd build && ctest

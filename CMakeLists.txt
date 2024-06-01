@@ -15,5 +15,5 @@ add_executable(mqtt ${SOURCES})
 target_include_directories(mqtt PUBLIC include)
 
 if(FLAG_BUILD_TESTS)
-    add_subdirectory(test)
+    include(cmake/test.cmake)
 endif()
