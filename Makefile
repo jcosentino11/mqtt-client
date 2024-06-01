@@ -13,7 +13,7 @@ clean:
 
 .PHONY: run
 run: all
-	$(BUILD_DIR)/ToyMqttClient
+	$(BUILD_DIR)/mqtt
 
 .PHONY: test
 test:

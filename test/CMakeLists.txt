@@ -11,16 +11,16 @@ enable_testing()
 
 file(GLOB_RECURSE TEST_SOURCES *.cpp)
 add_executable(
-  ToyMqttClientTests
+  MqttClientTests
   ${TEST_SOURCES}
 )
 
-target_include_directories(ToyMqttClientTests PUBLIC ./../include)
+target_include_directories(MqttClientTests PUBLIC ./../include)
 
 target_link_libraries(
-  ToyMqttClientTests
+  MqttClientTests
   GTest::gtest_main
 )
 
 include(GoogleTest)
-gtest_discover_tests(ToyMqttClientTests)
+gtest_discover_tests(MqttClientTests)
