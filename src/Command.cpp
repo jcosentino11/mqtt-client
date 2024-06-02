@@ -12,25 +12,24 @@ void Command::execute() {
     }
 
     if (mContext.command == "pub") {
-        std::string clientId = "test-client";
 
         char variableHeaderLength = 10; // TODO const
 
         // client id length needs to fix in the second byte of the connect
-        // packet
-        if (clientId.size() > 255 - variableHeaderLength) {
+        // packet (remainingLength)
+        if (mContext.clientId.size() > 255 - variableHeaderLength) {
             return; // TODO error handling
         }
-        // TODO validate client id only conatins alphanumeric
+        char remainingLength = variableHeaderLength + mContext.clientId.size();
 
         // supported payload fields: client identifier
         // TODO will topic, will message, user name, password, clean session
         size_t i;
-        char connectPacket[2 + variableHeaderLength + clientId.size()];
+
+        char connectPacket[2 + remainingLength];
         // BEGIN FIXED HEADER
         connectPacket[i++] = 0b00010000; // MQTT control packet type (1)
-        connectPacket[i++] =
-            variableHeaderLength + clientId.size(); // remaining length
+        connectPacket[i++] = remainingLength;
         // BEGIN VARIABLE HEADER
         connectPacket[i++] = 0; // length of MSB
         connectPacket[i++] = 4; // length of LSB
@@ -42,8 +41,13 @@ void Command::execute() {
         connectPacket[i++] = 0b00000000; // connect flags
         connectPacket[i++] = 0;          // keep alive MSB
         connectPacket[i++] = 0;          // keep alive LSB
-        // END VARIABLE HEADER
-        // TODO put client id into rest of packet, as UTF-8 encoded
+        // BEGIN PAYLOAD
+        // client id
+        for (size_t c = 0; c < mContext.clientId.size(); ++c) {
+            connectPacket[i++] = mContext.clientId[c];
+        }
+
+        // TODO send the packet
     }
 }
 
