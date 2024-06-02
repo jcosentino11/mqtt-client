@@ -2,6 +2,11 @@
 #include "Context.h"
 #include <iostream>
 
+#include <arpa/inet.h>
+#include <netinet/in.h>
+#include <sys/socket.h>
+#include <unistd.h>
+
 namespace MqttClient {
 
 Command::Command(Context context) : mContext(context) {}
@@ -12,6 +17,8 @@ void Command::execute() {
     }
 
     if (mContext.command == "pub") {
+
+        // TODO move connect packet to separate class
 
         char variableHeaderLength = 10; // TODO const
 
@@ -49,7 +56,31 @@ void Command::execute() {
             connectPacket[i++] = mContext.clientId[c];
         }
 
-        // TODO send the packet
+        // TODO move network stuff to separate class
+
+        int sock = socket(AF_INET, SOCK_STREAM, 0);
+        if (sock < 0) {
+            return; // TODO error handling
+        }
+        sockaddr_in server_addr;
+        std::memset(&server_addr, 0, sizeof(server_addr));
+        server_addr.sin_family = AF_INET;
+        server_addr.sin_port = htons(8080);
+        if (inet_pton(AF_INET, mContext.address.data(),
+                      &server_addr.sin_addr) <= 0) {
+            close(sock);
+            return; // TODO error handling
+        }
+        if (connect(sock, (struct sockaddr *)&server_addr,
+                    sizeof(server_addr)) < 0) {
+            close(sock);
+            return; // TODO error handling
+        }
+        if (send(sock, mContext.message.data(), mContext.message.size(), 0) <
+            0) {
+            close(sock);
+            return; // TODO error handling
+        }
     }
 }
 
