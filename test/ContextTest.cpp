@@ -1,6 +1,5 @@
 
 #include "Context.h"
-#include <algorithm>
 #include <gtest/gtest.h>
 #include <string>
 #include <vector>

@@ -1,6 +1,5 @@
 #include "Context.h"
 #include <getopt.h>
-#include <iostream>
 #include <string>
 
 namespace MqttClient {
