@@ -1,3 +1,4 @@
+#include "Command.h"
 #include "Context.h"
 #include <getopt.h>
 #include <iostream>
@@ -30,7 +31,8 @@ int main(int argc, char *argv[]) {
                   << ", message=" << context.message << "]\n";
     }
 
-    // TODO implement commands
+    auto command = new Command(context);
+    command->execute();
 
     return 0;
 }
