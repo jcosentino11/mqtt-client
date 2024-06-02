@@ -2,6 +2,7 @@
 #include "Context.h"
 #include <cstring>
 #include <iostream>
+#include <vector>
 
 #include <arpa/inet.h>
 #include <netinet/in.h>
@@ -17,6 +18,7 @@ void Command::execute() {
         std::cout << "Executing " << mContext.command << " command\n";
     }
 
+    // TODO this needs major cleanup
     if (mContext.command == "pub") {
 
         // TODO move connect packet to separate class
@@ -30,29 +32,35 @@ void Command::execute() {
                                           // earlier validation?
             return;                       // TODO error handling
         }
-        char remainingLength = variableHeaderLength + mContext.clientId.size();
+        char remainingLength =
+            variableHeaderLength +
+            (2 + mContext.clientId.size()); // 2 two encode length
 
         // supported payload fields: client identifier
         // TODO will topic, will message, user name, password, clean session
         size_t i = 0;
 
-        char connectPacket[2 + remainingLength];
+        size_t connPacketLen = 2 + remainingLength;
+        char connectPacket[connPacketLen];
         // BEGIN FIXED HEADER
         connectPacket[i++] = 0b00010000; // MQTT control packet type (1)
         connectPacket[i++] = remainingLength;
         // BEGIN VARIABLE HEADER
-        connectPacket[i++] = 0; // length of MSB
-        connectPacket[i++] = 4; // length of LSB
+        connectPacket[i++] = 0; // MQTT length MSB
+        connectPacket[i++] = 4; // MQTT length LSB
         connectPacket[i++] = 'M';
         connectPacket[i++] = 'Q';
         connectPacket[i++] = 'T';
         connectPacket[i++] = 'T';
-        connectPacket[i++] = 4;          // protocol level (MQTT 3.1.1)
-        connectPacket[i++] = 0b00000000; // connect flags
-        connectPacket[i++] = 0;          // keep alive MSB
-        connectPacket[i++] = 0;          // keep alive LSB
+        connectPacket[i++] = 4; // protocol level (MQTT 3.1.1)
+        connectPacket[i++] =
+            0b00000010;         // connect flags, just cleanSession=true for now
+        connectPacket[i++] = 0; // keep alive MSB
+        connectPacket[i++] = 0; // keep alive LSB
         // BEGIN PAYLOAD
         // client id
+        connectPacket[i++] = 0; // TODO client id length MSB
+        connectPacket[i++] = mContext.clientId.size(); // client id length LSB
         for (size_t c = 0; c < mContext.clientId.size(); ++c) {
             connectPacket[i++] = mContext.clientId[c];
         }
@@ -99,16 +107,30 @@ void Command::execute() {
 
         std::cout << "connected\n";
 
-        if (send(sock, mContext.message.data(), mContext.message.size(), 0) <
-            0) {
+        if (send(sock, connectPacket, connPacketLen, 0) < 0) {
             close(sock);
-            std::cerr << "unable to send message: " << strerror(errno) << "\n";
+            std::cerr << "unable to send CONNECT: " << strerror(errno) << "\n";
             return; // TODO error handling
         }
 
         std::cout << "CONNECT packet sent\n";
 
-        // TODO listen to CONNACK
+        std::cout << "waiting for resp\n";
+        std::vector<char> buf(4);
+        int bytes = recv(sock, buf.data(), buf.size(), 0);
+        if (bytes == 4) {
+            char packetType = buf[0];
+            if (buf[0] == 0b00100000) {
+                int returnCode = buf[3];
+                bool sessionPresent = buf[2];
+                std::cout << "CONNACK received! return code:" << returnCode
+                          << ", session present: " << sessionPresent << "\n";
+                // TODO read session present
+            }
+            // TODO error handling
+        } else {
+            std::cout << "nothing received\n";
+        }
     }
 }
 
