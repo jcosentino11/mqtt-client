@@ -26,6 +26,7 @@ int main(int argc, char *argv[]) {
         std::cout << "Context[command=" << context.command
                   << ", topic=" << context.topic
                   << ", address=" << context.address
+                  << ", clientId=" << context.clientId
                   << ", message=" << context.message << "]\n";
     }
 

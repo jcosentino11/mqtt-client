@@ -14,18 +14,22 @@ ParseResult parseContext(int argc, char *argv[]) noexcept {
 
     struct option opts[] = {{"topic", required_argument, 0, 't'},
                             {"address", required_argument, 0, 'a'},
+                            {"client-id", required_argument, 0, 'c'},
                             {"verbose", no_argument, 0, 'v'},
                             {"help", no_argument, 0, 'h'},
                             {0, 0, 0, 0}};
     int opt;
     int optInd = 0;
-    while ((opt = getopt_long(argc, argv, "t:a:vh", opts, &optInd)) != -1) {
+    while ((opt = getopt_long(argc, argv, "t:a:c:vh", opts, &optInd)) != -1) {
         switch (opt) {
         case 't':
             context.topic = optarg;
             break;
         case 'a':
             context.address = optarg;
+            break;
+        case 'c':
+            context.clientId = optarg;
             break;
         case 'v':
             context.verbose = true;
@@ -52,6 +56,11 @@ ParseResult parseContext(int argc, char *argv[]) noexcept {
     if (context.address.empty()) {
         // TODO more validations
         return {ParseResultCode::FAILURE, "Error: Address is required"};
+    }
+
+    if (context.clientId.empty()) {
+        // TODO more validations
+        return {ParseResultCode::FAILURE, "Error: Client id is required"};
     }
 
     auto numMessages = argc - 1 - optind;
