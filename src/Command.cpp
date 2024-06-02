@@ -34,7 +34,7 @@ void Command::execute() {
 
         // supported payload fields: client identifier
         // TODO will topic, will message, user name, password, clean session
-        size_t i;
+        size_t i = 0;
 
         char connectPacket[2 + remainingLength];
         // BEGIN FIXED HEADER
@@ -58,30 +58,57 @@ void Command::execute() {
         }
 
         // TODO move network stuff to separate class
+        // TODO support ipv4
+        // TODO resolve localhost, hosts
 
-        int sock = socket(AF_INET, SOCK_STREAM, 0);
+        int sock = socket(AF_INET6, SOCK_STREAM, 0);
         if (sock < 0) {
+            std::cerr << "unable to create socket: " << strerror(errno) << "\n";
             return; // TODO error handling
         }
-        sockaddr_in server_addr;
+
+        // TODO move this into context
+        std::string host = mContext.address;
+        std::string port = "1883";
+
+        size_t pos = mContext.address.find_last_of(':');
+        if (pos != std::string::npos) {
+            host = mContext.address.substr(0, pos);
+            port = mContext.address.substr(pos + 1);
+        }
+        std::cout << "host: " << host << "\n";
+        std::cout << "port: " << port << "\n";
+
+        sockaddr_in6 server_addr;
         std::memset(&server_addr, 0, sizeof(server_addr));
-        server_addr.sin_family = AF_INET;
-        server_addr.sin_port = htons(8080);
-        if (inet_pton(AF_INET, mContext.address.data(),
-                      &server_addr.sin_addr) <= 0) {
+        server_addr.sin6_family = AF_INET6;
+        server_addr.sin6_port = htons(std::stoi(port));
+        if (inet_pton(AF_INET6, host.c_str(), &server_addr.sin6_addr) <= 0) {
             close(sock);
-            return; // TODO error handling
+            std::cerr << "unable to create address: " << strerror(errno)
+                      << "\n";
+            return;
         }
-        if (connect(sock, (struct sockaddr *)&server_addr,
-                    sizeof(server_addr)) < 0) {
+
+        if (connect(sock, (sockaddr *)&server_addr, sizeof(server_addr)) < 0) {
             close(sock);
-            return; // TODO error handling
+            std::cerr << "unable to connect to server: " << strerror(errno)
+                      << "\n";
+            return;
         }
+
+        std::cout << "connected\n";
+
         if (send(sock, mContext.message.data(), mContext.message.size(), 0) <
             0) {
             close(sock);
+            std::cerr << "unable to send message: " << strerror(errno) << "\n";
             return; // TODO error handling
         }
+
+        std::cout << "CONNECT packet sent\n";
+
+        // TODO listen to CONNACK
     }
 }
 
