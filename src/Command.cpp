@@ -15,10 +15,12 @@ void Command::execute() {
 
         char variableHeaderLength = 10; // TODO const
 
-        // client id length needs to fix in the second byte of the connect
+        // client id length needs to fit in the second byte of the connect
         // packet (remainingLength)
-        if (mContext.clientId.size() > 255 - variableHeaderLength) {
-            return; // TODO error handling
+        if (mContext.clientId.size() >
+            255 - variableHeaderLength) { // TODO can this just be moved to
+                                          // earlier validation?
+            return;                       // TODO error handling
         }
         char remainingLength = variableHeaderLength + mContext.clientId.size();
 
