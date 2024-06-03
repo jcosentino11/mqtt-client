@@ -1,12 +1,11 @@
 #pragma once
 
 #include "Context.h"
+#include "Network.h"
 #include <memory>
 #include <vector>
 
 namespace MqttClient {
-
-using Payload = std::vector<char>;
 
 class PacketBuilder {
 

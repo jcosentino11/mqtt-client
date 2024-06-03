@@ -16,19 +16,15 @@ bool PacketBuilder::connect(Payload &payload) {
                                       // earlier validation?
         return false;                 // TODO error handling
     }
-    char remainingLength =
-        variableHeaderLength +
-        (2 + mContext->clientId.size()); // 2 two encode length
-
-    size_t connPacketLen = 2 + remainingLength;
-    payload.reserve(connPacketLen);
 
     // supported payload fields: client identifier
     // TODO will topic, will message, user name, password, clean session
+    // TODO support MQTT5
 
     // BEGIN FIXED HEADER
     payload.push_back(0b00010000); // MQTT control packet type (1)
-    payload.push_back(remainingLength);
+    payload.push_back(variableHeaderLength + 2 +
+                      mContext->clientId.size()); // remainingLength
     // BEGIN VARIABLE HEADER
     payload.push_back(0); // MQTT length MSB
     payload.push_back(4); // MQTT length LSB
