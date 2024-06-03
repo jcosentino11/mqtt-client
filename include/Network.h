@@ -1,16 +1,15 @@
 #pragma once
-
 #include "Context.h"
 #include <memory>
 
 namespace MqttClient {
 
-class Command {
+class Network {
   public:
-    Command(std::shared_ptr<Context> context);
-    void execute();
+    Network(std::shared_ptr<Context> context);
 
   private:
     std::shared_ptr<Context> mContext;
 };
+
 } // namespace MqttClient

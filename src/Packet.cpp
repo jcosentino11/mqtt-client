@@ -1,22 +1,24 @@
 #include "Packet.h"
 #include "Context.h"
+#include <memory>
 
 namespace MqttClient {
-PacketBuilder::PacketBuilder(Context &context) : mContext(context) {};
+PacketBuilder::PacketBuilder(std::shared_ptr<Context> context)
+    : mContext(std::move(context)) {};
 
 bool PacketBuilder::connect(Payload &payload) {
     char variableHeaderLength = 10; // TODO const
 
     // client id length needs to fit in the second byte of the connect
     // packet (remainingLength)
-    if (mContext.clientId.size() >
+    if (mContext->clientId.size() >
         255 - variableHeaderLength) { // TODO can this just be moved to
                                       // earlier validation?
         return false;                 // TODO error handling
     }
     char remainingLength =
         variableHeaderLength +
-        (2 + mContext.clientId.size()); // 2 two encode length
+        (2 + mContext->clientId.size()); // 2 two encode length
 
     size_t connPacketLen = 2 + remainingLength;
     payload.reserve(connPacketLen);
@@ -41,10 +43,10 @@ bool PacketBuilder::connect(Payload &payload) {
     payload.push_back(0); // keep alive LSB
     // BEGIN PAYLOAD
     // client id
-    payload.push_back(0);                        // TODO client id length MSB
-    payload.push_back(mContext.clientId.size()); // client id length LSB
-    for (size_t c = 0; c < mContext.clientId.size(); ++c) {
-        payload.push_back(mContext.clientId[c]);
+    payload.push_back(0);                         // TODO client id length MSB
+    payload.push_back(mContext->clientId.size()); // client id length LSB
+    for (size_t c = 0; c < mContext->clientId.size(); ++c) {
+        payload.push_back(mContext->clientId[c]);
     }
     return true;
 }

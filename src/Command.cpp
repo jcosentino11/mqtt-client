@@ -3,6 +3,7 @@
 #include "Packet.h"
 #include <cstring>
 #include <iostream>
+#include <memory>
 #include <vector>
 
 #include <arpa/inet.h>
@@ -12,17 +13,18 @@
 
 namespace MqttClient {
 
-Command::Command(Context context) : mContext(context) {}
+Command::Command(std::shared_ptr<Context> context)
+    : mContext(std::move(context)) {}
 
 void Command::execute() {
-    if (mContext.verbose) {
-        std::cout << "Executing " << mContext.command << " command\n";
+    if (mContext->verbose) {
+        std::cout << "Executing " << mContext->command << " command\n";
     }
 
     auto packetBuilder = PacketBuilder(mContext);
 
     // TODO this needs major cleanup
-    if (mContext.command == "pub") {
+    if (mContext->command == "pub") {
 
         Payload conn{};
         if (packetBuilder.connect(conn)) {
@@ -38,13 +40,13 @@ void Command::execute() {
             }
 
             // TODO move this into context
-            std::string host = mContext.address;
+            std::string host = mContext->address;
             std::string port = "1883";
 
-            size_t pos = mContext.address.find_last_of(':');
+            size_t pos = mContext->address.find_last_of(':');
             if (pos != std::string::npos) {
-                host = mContext.address.substr(0, pos);
-                port = mContext.address.substr(pos + 1);
+                host = mContext->address.substr(0, pos);
+                port = mContext->address.substr(pos + 1);
             }
             std::cout << "host: " << host << "\n";
             std::cout << "port: " << port << "\n";

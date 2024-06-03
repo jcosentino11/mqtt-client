@@ -2,6 +2,7 @@
 #include "Context.h"
 #include <getopt.h>
 #include <iostream>
+#include <memory>
 #include <string>
 
 using namespace MqttClient;
@@ -31,7 +32,7 @@ int main(int argc, char *argv[]) {
                   << ", message=" << context.message << "]\n";
     }
 
-    auto command = new Command(context);
+    auto command = new Command(std::make_shared<Context>(context));
     command->execute();
 
     return 0;
