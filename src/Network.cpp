@@ -87,7 +87,6 @@ bool Network::netConnect() {
         return false;
     }
 
-    std::cout << "connected\n";
     mConnected = true;
     return true;
 }
