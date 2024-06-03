@@ -1,6 +1,7 @@
 #pragma once
 #include "Context.h"
 #include <memory>
+#include <vector>
 
 namespace MqttClient {
 
