@@ -4,12 +4,12 @@ Bare-bones MQTT CLI for Mac and Linux.
 
 ## Publish to a topic
 ```
-mqtt pub -t hello/topic '{"hello": "world"}'
+mqtt pub -t hello/topic -a localhost:1883 -c clientId '{"hello": "world"}'
 ```
 
 ## Subscribe to a topic
 ```
-mqtt sub -t hello/topic
+mqtt sub -t hello/topic -a localhost:1883 -c clientId 
 ```
 
 ## Related Projects

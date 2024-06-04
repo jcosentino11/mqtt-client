@@ -18,5 +18,6 @@ class Command {
     Network mNetwork;
 
     bool connect();
+    bool publish();
 };
 } // namespace MqttClient

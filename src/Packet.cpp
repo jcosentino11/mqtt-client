@@ -41,8 +41,26 @@ bool PacketBuilder::connect(Payload &payload) {
     // client id
     payload.push_back(0);                         // TODO client id length MSB
     payload.push_back(mContext->clientId.size()); // client id length LSB
-    for (size_t c = 0; c < mContext->clientId.size(); ++c) {
-        payload.push_back(mContext->clientId[c]);
+    for (size_t i = 0; i < mContext->clientId.size(); ++i) {
+        payload.push_back(mContext->clientId[i]);
+    }
+    return true;
+}
+
+bool PacketBuilder::publish(Payload &payload) {
+    // BEGIN FIXED HEADER
+    payload.push_back(0b00110000); // MQTT control packet type (3) TODO support
+                                   // dup , qos, retain
+    payload.push_back(2 + mContext->topic.size() +
+                      mContext->message.size()); // remainingLength
+    // BEGIN VARIABLE HEADER
+    payload.push_back(0);                      // TODO topic length MSB
+    payload.push_back(mContext->topic.size()); // topic length LSB
+    for (size_t i = 0; i < mContext->topic.size(); ++i) {
+        payload.push_back(mContext->topic[i]);
+    }
+    for (size_t i = 0; i < mContext->message.size(); ++i) {
+        payload.push_back(mContext->message[i]);
     }
     return true;
 }
