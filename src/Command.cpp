@@ -27,10 +27,8 @@ void Command::execute() {
     }
 
     if (mContext->command == "pub") {
-        // TODO
-    }
-
-    if (mContext->command == "sub") {
+        publish();
+    } else if (mContext->command == "sub") {
         // TODO
     }
 }
@@ -38,12 +36,12 @@ void Command::execute() {
 bool Command::connect() {
     Payload conn;
     if (!mPacketBuilder.connect(conn)) {
-        std::cerr << "Unable to build CONNECT packet";
+        std::cerr << "Unable to build CONNECT packet\n";
         return false;
     }
 
     if (!mNetwork.netSend(conn)) {
-        std::cerr << "unable to send CONNECT: " << strerror(errno) << "\n";
+        std::cerr << "Unable to send CONNECT: " << strerror(errno) << "\n";
         return false;
     }
 
@@ -53,7 +51,7 @@ bool Command::connect() {
 
     Payload connAck;
     if (!mNetwork.netRecv(connAck, 4) || connAck[0] != 0b00100000) {
-        std::cerr << "CONNACK not received";
+        std::cerr << "CONNACK not received\n";
         return false;
     }
 
@@ -65,6 +63,27 @@ bool Command::connect() {
                   << ", session present: " << sessionPresent << "\n";
     }
     return true;
+}
+
+bool Command::publish() {
+    Payload publish;
+    if (!mPacketBuilder.publish(publish)) {
+        std::cerr << "Unable to build PUBLISH packet\n";
+        return false;
+    }
+
+    if (!mNetwork.netSend(publish)) {
+        std::cerr << "Unable to send PUBLISH: " << strerror(errno) << "\n";
+        return false;
+    }
+
+    if (mContext->verbose) {
+        std::cout << "PUBLISH sent\n";
+    }
+
+    return true;
+
+    // PUBACK
 }
 
 } // namespace MqttClient
