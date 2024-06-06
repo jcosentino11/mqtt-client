@@ -21,7 +21,7 @@ jobs:
       - name: Run System Tests
         run: |
           mkdir build
-          cmake -S . -B build -DFLAG_BUILD_TESTS=ON
+          cmake -S . -B build -DFLAG_BUILD_TESTS=OFF
           ./system-test.sh
         shell: bash
 
