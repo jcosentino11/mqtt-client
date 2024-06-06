@@ -7,13 +7,15 @@
 #include <vector>
 
 #include <arpa/inet.h>
+#include <netdb.h>
 #include <netinet/in.h>
 #include <sys/socket.h>
+#include <sys/types.h>
 #include <unistd.h>
 
 namespace MqttClient {
 Network::Network(std::shared_ptr<Context> context)
-    : mContext(std::move(context)) {};
+    : mContext(std::move(context)), mSock{-1}, mConnected{false} {};
 Network::~Network() { netClose(); }
 
 bool Network::netSend(Payload &payload) {
@@ -32,7 +34,7 @@ bool Network::netRecv(Payload &payload, size_t len) {
         return false;
     }
 
-    payload.reserve(len);
+    payload.resize(len);
 
     auto totalReceived = 0;
     while (totalReceived < len) {
@@ -53,14 +55,6 @@ bool Network::netConnect() {
         return true;
     }
 
-    // TODO support ipv4
-    int sock = socket(AF_INET6, SOCK_STREAM, 0);
-    if (sock < 0) {
-        std::cerr << "unable to create socket: " << strerror(errno) << "\n";
-        return false;
-    }
-    mSock = sock;
-
     // TODO move this into context
     std::string host = mContext->address;
     std::string port = "1883";
@@ -70,20 +64,32 @@ bool Network::netConnect() {
         port = mContext->address.substr(pos + 1);
     }
 
-    // TODO resolve localhost, hosts
-    sockaddr_in6 server_addr;
-    std::memset(&server_addr, 0, sizeof(server_addr));
-    server_addr.sin6_family = AF_INET6;
-    server_addr.sin6_port = htons(std::stoi(port));
-    if (inet_pton(AF_INET6, host.c_str(), &server_addr.sin6_addr) <= 0) {
-        netClose();
-        std::cerr << "unable to create address: " << strerror(errno) << "\n";
+    struct addrinfo hints = {}, *addrs;
+    hints.ai_family = AF_UNSPEC;
+    hints.ai_socktype = SOCK_STREAM;
+    hints.ai_protocol = IPPROTO_TCP;
+
+    if (getaddrinfo(host.data(), port.data(), &hints, &addrs) != 0) {
+        std::cerr << "unable to resolve address: " << strerror(errno) << "\n";
         return false;
     }
 
-    if (connect(mSock, (sockaddr *)&server_addr, sizeof(server_addr)) < 0) {
+    for (struct addrinfo *addr = addrs; addr != NULL; addr = addr->ai_next) {
+        mSock = socket(addr->ai_family, addr->ai_socktype, addr->ai_protocol);
+        if (mSock == -1) {
+            continue;
+        }
+
+        if (connect(mSock, addr->ai_addr, addr->ai_addrlen) < 0) {
+            std::cerr << "unable to connect to host: " << strerror(errno)
+                      << "\n";
+            break;
+        }
+    }
+
+    if (mSock < 0) {
+        freeaddrinfo(addrs);
         netClose();
-        std::cerr << "unable to connect to server: " << strerror(errno) << "\n";
         return false;
     }
 
@@ -92,9 +98,10 @@ bool Network::netConnect() {
 }
 
 void Network::netClose() {
-    if (mSock != 0) {
+    if (mSock >= 0) {
         close(mSock);
         mConnected = false;
+        mSock = -1;
     }
 }
 } // namespace MqttClient
