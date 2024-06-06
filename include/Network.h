@@ -18,7 +18,7 @@ class Network {
   private:
     std::shared_ptr<Context> mContext;
     int mSock;
-    bool mConnected = false;
+    bool mConnected;
 
     bool netConnect();
     void netClose();
