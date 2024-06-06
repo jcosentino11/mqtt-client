@@ -22,7 +22,8 @@ jobs:
         run: |
           mkdir build
           cmake -S . -B build -DFLAG_BUILD_TESTS=OFF
-          cd mqtt-client && ./system-test.sh
+          cmake --build build
+          ./system-test.sh
         shell: bash
 
     strategy:
