@@ -83,10 +83,13 @@ bool Network::netConnect() {
         if (connect(mSock, addr->ai_addr, addr->ai_addrlen) < 0) {
             std::cerr << "unable to connect to host: " << strerror(errno)
                       << "\n";
-            break;
+            freeaddrinfo(addrs);
+            netClose();
+            return false;
         }
     }
 
+    // socket failed for all addrs
     if (mSock < 0) {
         freeaddrinfo(addrs);
         netClose();
