@@ -5,7 +5,7 @@
 
 namespace MqttClient {
 
-using Payload = std::vector<char>;
+using Payload = std::vector<unsigned char>;
 
 class Network {
   public:

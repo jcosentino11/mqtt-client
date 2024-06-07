@@ -29,7 +29,7 @@ void Command::execute() {
     if (mContext->command == "pub") {
         publish();
     } else if (mContext->command == "sub") {
-        // TODO
+        subscribe();
     }
 }
 
@@ -81,9 +81,50 @@ bool Command::publish() {
         std::cout << "PUBLISH sent\n";
     }
 
-    return true;
+    // TODO read PUBACK
 
-    // PUBACK
+    return true;
+}
+
+bool Command::subscribe() {
+    Payload subscribe;
+    if (!mPacketBuilder.subscribe(subscribe)) {
+        std::cerr << "Unable to build SUBSCRIBE packet\n";
+        return false;
+    }
+
+    if (!mNetwork.netSend(subscribe)) {
+        std::cerr << "Unable to send SUBSCRIBE: " << strerror(errno) << "\n";
+        return false;
+    }
+
+    if (mContext->verbose) {
+        std::cout << "SUBSCRIBE sent\n";
+    }
+
+    Payload subAck;
+    if (!mNetwork.netRecv(subAck, 4)) {
+        std::cerr << "SUBACK not received\n";
+        return false;
+    }
+
+    unsigned char packetType = subAck[0];
+    if (packetType != 0b10010000) {
+        std::cerr << "Another packet received instead of SUBACK\n";
+        return false;
+    }
+
+    if (subAck[3] > 2) {
+        int ret = subAck[3];
+        std::cerr << "Subscription failed. return code: " << ret << "\n";
+        return false;
+    }
+
+    if (mContext->verbose) {
+        std::cout << "SUBACK sent\n";
+    }
+
+    return true;
 }
 
 } // namespace MqttClient

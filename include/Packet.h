@@ -13,6 +13,7 @@ class PacketBuilder {
     PacketBuilder(std::shared_ptr<Context> context);
     bool connect(Payload &payload); // TODO more specific error handling?
     bool publish(Payload &payload);
+    bool subscribe(Payload &payload);
 
   private:
     std::shared_ptr<Context> mContext;

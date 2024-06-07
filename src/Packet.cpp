@@ -6,62 +6,117 @@ namespace MqttClient {
 PacketBuilder::PacketBuilder(std::shared_ptr<Context> context)
     : mContext(std::move(context)) {};
 
+// TODO will topic, will message, user name, password, clean session
+// TODO support MQTT5
 bool PacketBuilder::connect(Payload &payload) {
-    char variableHeaderLength = 10; // TODO const
-
-    // client id length needs to fit in the second byte of the connect
-    // packet (remainingLength)
-    if (mContext->clientId.size() >
-        255 - variableHeaderLength) { // TODO can this just be moved to
-                                      // earlier validation?
-        return false;                 // TODO error handling
-    }
-
-    // supported payload fields: client identifier
-    // TODO will topic, will message, user name, password, clean session
-    // TODO support MQTT5
-
     // BEGIN FIXED HEADER
-    payload.push_back(0b00010000); // MQTT control packet type (1)
-    payload.push_back(variableHeaderLength + 2 +
-                      mContext->clientId.size()); // remainingLength
+    // ------------------
+    // MQTT control packet type (1)
+    payload.push_back(0b00010000);
+    // remaining length
+    payload.push_back(10 + (2 + mContext->clientId.size()));
+
     // BEGIN VARIABLE HEADER
-    payload.push_back(0); // MQTT length MSB
-    payload.push_back(4); // MQTT length LSB
+    // ---------------------
+    // MQTT length MSB
+    payload.push_back(0);
+    // MQTT length LSB
+    payload.push_back(4);
     payload.push_back('M');
     payload.push_back('Q');
     payload.push_back('T');
     payload.push_back('T');
-    payload.push_back(4); // protocol level (MQTT 3.1.1)
-    payload.push_back(
-        0b00000010);      // connect flags, just cleanSession=true for now
-    payload.push_back(0); // keep alive MSB
-    payload.push_back(0); // keep alive LSB
+    // protocol level (MQTT 3.1.1)
+    payload.push_back(4);
+    // connect flags
+    //    cleanSession=true
+    // TODO support other flags
+    payload.push_back(0b00000010);
+    // keep alive MSB
+    // TODO
+    payload.push_back(0);
+    // keep alive LSB
+    // TODO
+    payload.push_back(0);
+
     // BEGIN PAYLOAD
+    // -------------
+    // client id length MSB
+    // TODO
+    payload.push_back(0);
+    // client id length LSB
+    payload.push_back(mContext->clientId.size());
     // client id
-    payload.push_back(0);                         // TODO client id length MSB
-    payload.push_back(mContext->clientId.size()); // client id length LSB
     for (size_t i = 0; i < mContext->clientId.size(); ++i) {
         payload.push_back(mContext->clientId[i]);
     }
+
     return true;
 }
 
 bool PacketBuilder::publish(Payload &payload) {
     // BEGIN FIXED HEADER
-    payload.push_back(0b00110000); // MQTT control packet type (3) TODO support
-                                   // dup , qos, retain
-    payload.push_back(2 + mContext->topic.size() +
-                      mContext->message.size()); // remainingLength
+    // ------------------
+    // MQTT control packet type (3)
+    // TODO support dup , qos, retain
+    payload.push_back(0b00110000);
+    // remaining length
+    payload.push_back((2 + mContext->topic.size()) + mContext->message.size());
+
     // BEGIN VARIABLE HEADER
-    payload.push_back(0);                      // TODO topic length MSB
-    payload.push_back(mContext->topic.size()); // topic length LSB
+    // ---------------------
+    // topic length MSB
+    // TODO
+    payload.push_back(0);
+    // topic length LSB
+    payload.push_back(mContext->topic.size());
+    // topic
     for (size_t i = 0; i < mContext->topic.size(); ++i) {
         payload.push_back(mContext->topic[i]);
     }
+
+    // BEGIN PAYLOAD
+    // -------------
     for (size_t i = 0; i < mContext->message.size(); ++i) {
         payload.push_back(mContext->message[i]);
     }
+
     return true;
 }
+
+bool PacketBuilder::subscribe(Payload &payload) {
+    // BEGIN FIXED HEADER
+    // ------------------
+    // MQTT control packet type (8)
+    payload.push_back(0b10000010);
+    // remaining length
+    payload.push_back(2 + (3 + mContext->topic.size()));
+
+    // BEGIN VARIABLE HEADER
+    // ---------------------
+    // packet identifier MSB
+    // TODO
+    payload.push_back(0);
+    // packet identifier LSB
+    // TODO support a real identifier
+    payload.push_back(1);
+
+    // BEGIN PAYLOAD
+    // -------------
+    // topic length MSB
+    // TODO
+    payload.push_back(0);
+    // topic length LSB
+    payload.push_back(mContext->topic.size());
+    // topic
+    for (size_t i = 0; i < mContext->topic.size(); ++i) {
+        payload.push_back(mContext->topic[i]);
+    }
+    // topic QoS
+    // TODO
+    payload.push_back(0);
+
+    return true;
+}
+
 } // namespace MqttClient
