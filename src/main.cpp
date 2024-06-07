@@ -11,11 +11,19 @@ int main(int argc, char *argv[]) {
     auto res = parseContext(argc, argv);
     switch (res.code) {
     case ParseResultCode::HELP:
-        std::cout << USAGE;
+        if (res.context.command == "sub") {
+            std::cout << USAGE_SUB;
+        } else {
+            std::cout << USAGE_PUB;
+        }
         return 0;
     case ParseResultCode::FAILURE:
         std::cerr << res.error << "\n";
-        std::cout << USAGE;
+        if (res.context.command == "sub") {
+            std::cout << USAGE_SUB;
+        } else {
+            std::cout << USAGE_PUB;
+        }
         return 1;
     case ParseResultCode::SUCCESS:
         // carry on

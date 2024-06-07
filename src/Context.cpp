@@ -35,7 +35,7 @@ ParseResult parseContext(int argc, char *argv[]) noexcept {
             context.verbose = true;
             break;
         case 'h':
-            return {ParseResultCode::HELP};
+            return {ParseResultCode::HELP, {}, context};
         case '?':
             return {ParseResultCode::FAILURE};
         default:
@@ -43,38 +43,53 @@ ParseResult parseContext(int argc, char *argv[]) noexcept {
         }
     }
 
-    if (context.command != "pub") {
-        return {ParseResultCode::FAILURE,
-                "Unknown command: " + context.command};
+    if (context.command != "pub" &&
+        context.command != "sub") { // TODO case-insensitive
+        return {ParseResultCode::FAILURE, "Unknown command: " + context.command,
+                context};
     }
 
     if (context.topic.empty()) {
         // TODO more validations
-        return {ParseResultCode::FAILURE, "Error: Topic is required"};
+        return {ParseResultCode::FAILURE, "Error: Topic is required", context};
     }
 
     if (context.address.empty()) {
         // TODO more validations
-        return {ParseResultCode::FAILURE, "Error: Address is required"};
+        return {ParseResultCode::FAILURE, "Error: Address is required",
+                context};
     }
 
     if (context.clientId.empty()) {
         // TODO more validations
-        return {ParseResultCode::FAILURE, "Error: Client id is required"};
+        return {ParseResultCode::FAILURE, "Error: Client id is required",
+                context};
+    }
+    if (context.clientId.size() > 245) {
+        return {ParseResultCode::FAILURE, "Error: Client id is too long",
+                context};
     }
 
     auto numMessages = argc - 1 - optind;
-    if (numMessages == 0) {
-        return {ParseResultCode::FAILURE, "Error: Message is required"};
+    if (context.command == "sub") {
+        if (numMessages != 0) {
+            return {ParseResultCode::FAILURE,
+                    "Error: Message is not allowed for sub command", context};
+        }
+    } else {
+        if (numMessages == 0) {
+            return {ParseResultCode::FAILURE, "Error: Message is required",
+                    context};
+        }
+        if (numMessages > 1) {
+            return {ParseResultCode::FAILURE,
+                    "Error: " + std::to_string(numMessages) +
+                        " messages were provided. Only 1 message at a "
+                        "time is supported",
+                    context};
+        }
+        context.message = argv[optind + 1];
     }
-    if (numMessages > 1) {
-        return {ParseResultCode::FAILURE,
-                "Error: " + std::to_string(numMessages) +
-                    " messages were provided. Currently, only 1 message at a "
-                    "time is supported"};
-    }
-
-    context.message = argv[optind + 1];
 
     return {ParseResultCode::SUCCESS, {}, context};
 }

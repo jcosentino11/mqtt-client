@@ -19,5 +19,6 @@ class Command {
 
     bool connect();
     bool publish();
+    bool subscribe();
 };
 } // namespace MqttClient
