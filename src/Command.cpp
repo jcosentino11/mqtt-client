@@ -163,8 +163,7 @@ bool Command::subscribe() {
 
             if (packetType != 0b00110000) {
                 if (mContext->verbose) {
-                    std::cerr << "Unexpected packet type received: "
-                              << std::bitset<8>(packetType) << "" << std::endl;
+                    std::cerr << "Unexpected packet type received";
                 }
                 continue;
             }
