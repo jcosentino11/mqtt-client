@@ -11,11 +11,11 @@ using namespace MqttClient;
 
 int main(int argc, char *argv[]) {
     if (signal(SIGINT, onInterrupt) == SIG_ERR) {
-        std::cerr << "Unable to register SIGINT handler\n";
+        std::cerr << "Unable to register SIGINT handler" << std::endl;
         return 1;
     }
     if (signal(SIGTERM, onInterrupt) == SIG_ERR) {
-        std::cerr << "Unable to register SIGTERM handler\n";
+        std::cerr << "Unable to register SIGTERM handler" << std::endl;
         return 1;
     }
 
@@ -29,7 +29,7 @@ int main(int argc, char *argv[]) {
         }
         return 0;
     case ParseResultCode::FAILURE:
-        std::cerr << res.error << "\n";
+        std::cerr << res.error << "" << std::endl;
         if (res.context.command == "sub") {
             std::cout << USAGE_SUB;
         } else {
@@ -48,7 +48,7 @@ int main(int argc, char *argv[]) {
                   << ", topic=" << context.topic
                   << ", address=" << context.address
                   << ", clientId=" << context.clientId
-                  << ", message=" << context.message << "]\n";
+                  << ", message=" << context.message << "]" << std::endl;
     }
 
     auto command = new Command(std::make_shared<Context>(context));

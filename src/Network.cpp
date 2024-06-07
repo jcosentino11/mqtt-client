@@ -40,7 +40,7 @@ bool Network::netRecv(Payload &payload, size_t len) {
     while (totalReceived < len) {
         auto received =
             recv(mSock, payload.data() + totalReceived, len - totalReceived, 0);
-        if (received == 0) {
+        if (received <= 0) {
             netClose();
             return false;
         }
@@ -70,7 +70,8 @@ bool Network::netConnect() {
     hints.ai_protocol = IPPROTO_TCP;
 
     if (getaddrinfo(host.data(), port.data(), &hints, &addrs) != 0) {
-        std::cerr << "unable to resolve address: " << strerror(errno) << "\n";
+        std::cerr << "unable to resolve address: " << strerror(errno) << ""
+                  << std::endl;
         return false;
     }
 
@@ -81,8 +82,8 @@ bool Network::netConnect() {
         }
 
         if (connect(mSock, addr->ai_addr, addr->ai_addrlen) < 0) {
-            std::cerr << "unable to connect to host: " << strerror(errno)
-                      << "\n";
+            std::cerr << "unable to connect to host: " << strerror(errno) << ""
+                      << std::endl;
             freeaddrinfo(addrs);
             netClose();
             return false;
