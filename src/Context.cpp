@@ -91,6 +91,8 @@ ParseResult parseContext(int argc, char *argv[]) noexcept {
         context.message = argv[optind + 1];
     }
 
+    context.qos = 1; // TODO make configurable
+
     return {ParseResultCode::SUCCESS, {}, context};
 }
 

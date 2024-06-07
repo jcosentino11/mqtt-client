@@ -21,8 +21,6 @@ Options:
 
 ## Subscribe to a topic
 
-> :warning: Work in progress. Subscribe request is sent, but still need to actually listen for payloads.
-
 ```
 mqtt sub -t hello/topic -a localhost:1883 -c clientId
 ```
@@ -44,9 +42,10 @@ Options:
 | MQTT3                   | x         |         |
 | MQTT5                   |           | x       |
 | QOS0                    | x         |         |
-| QOS1/2                  |           | x       |
+| QOS1                    | x         |         |
+| QOS2                    |           | x       |
 | PUBLISH                 | x         |         |
-| SUBSCRIBE               |           | x       |
+| SUBSCRIBE               | x         |         |
 | Various CONNECT options |           | x       |
 | SSL                     |           | x       |
 

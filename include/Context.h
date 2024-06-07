@@ -10,6 +10,7 @@ struct Context {
     std::string message;
     std::string address;
     std::string clientId;
+    uint8_t qos; // TODO make configurable
     bool verbose;
 };
 

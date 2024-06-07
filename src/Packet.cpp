@@ -1,6 +1,7 @@
 #include "Packet.h"
 #include "Context.h"
 #include <memory>
+#include <random>
 
 namespace MqttClient {
 PacketBuilder::PacketBuilder(std::shared_ptr<Context> context)
@@ -58,10 +59,18 @@ bool PacketBuilder::publish(Payload &payload) {
     // BEGIN FIXED HEADER
     // ------------------
     // MQTT control packet type (3)
-    // TODO support dup , qos, retain
-    payload.push_back(0b00110000);
+    // TODO support dup, retain
+    auto controlPacket = 0b00110000;
+    // set qos
+    controlPacket = controlPacket | mContext->qos << 1;
+    payload.push_back(controlPacket);
     // remaining length
-    payload.push_back((2 + mContext->topic.size()) + mContext->message.size());
+    uint8_t remainingLength =
+        (2 + mContext->topic.size()) + mContext->message.size();
+    if (mContext->qos > 0) {
+        remainingLength += 2; // packet identifier
+    }
+    payload.push_back(remainingLength);
 
     // BEGIN VARIABLE HEADER
     // ---------------------
@@ -73,6 +82,13 @@ bool PacketBuilder::publish(Payload &payload) {
     // topic
     for (size_t i = 0; i < mContext->topic.size(); ++i) {
         payload.push_back(mContext->topic[i]);
+    }
+    if (mContext->qos > 0) {
+        // packet identifier MSB
+        // TODO
+        payload.push_back(0);
+        // packet identifier LSB
+        payload.push_back(packetId());
     }
 
     // BEGIN PAYLOAD
@@ -98,8 +114,7 @@ bool PacketBuilder::subscribe(Payload &payload) {
     // TODO
     payload.push_back(0);
     // packet identifier LSB
-    // TODO support a real identifier
-    payload.push_back(1);
+    payload.push_back(packetId());
 
     // BEGIN PAYLOAD
     // -------------
@@ -113,10 +128,17 @@ bool PacketBuilder::subscribe(Payload &payload) {
         payload.push_back(mContext->topic[i]);
     }
     // topic QoS
-    // TODO
-    payload.push_back(0);
+    payload.push_back(mContext->qos);
 
     return true;
+}
+
+uint16_t PacketBuilder::packetId() {
+    // TODO rework this
+    std::random_device rd;
+    std::mt19937 gen(rd());
+    std::uniform_int_distribution<> distribution(200, 500);
+    return distribution(gen);
 }
 
 } // namespace MqttClient
