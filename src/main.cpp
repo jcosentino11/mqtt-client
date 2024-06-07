@@ -1,5 +1,7 @@
 #include "Command.h"
 #include "Context.h"
+#include "Interrupt.h"
+#include <csignal>
 #include <getopt.h>
 #include <iostream>
 #include <memory>
@@ -8,6 +10,15 @@
 using namespace MqttClient;
 
 int main(int argc, char *argv[]) {
+    if (signal(SIGINT, onInterrupt) == SIG_ERR) {
+        std::cerr << "Unable to register SIGINT handler\n";
+        return 1;
+    }
+    if (signal(SIGTERM, onInterrupt) == SIG_ERR) {
+        std::cerr << "Unable to register SIGTERM handler\n";
+        return 1;
+    }
+
     auto res = parseContext(argc, argv);
     switch (res.code) {
     case ParseResultCode::HELP:
