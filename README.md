@@ -2,7 +2,7 @@
 
 Bare-bones MQTT CLI for Mac and Linux. 
 
-This project is a personal learning exercise, for diving into MQTT internals and network programming.  On the small chance that you're considering actually using this client....just use one of the real ones listed below.
+This project is a personal learning exercise, for diving into MQTT internals and network programming.
 
 ## Publish to a topic
 ```
