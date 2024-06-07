@@ -21,7 +21,7 @@ Options:
 
 ## Subscribe to a topic
 
-> :alert: Work in progress. Subscribe request is sent, but still need to actually listen for payloads.
+> :warning: Work in progress. Subscribe request is sent, but still need to actually listen for payloads.
 
 ```
 mqtt sub -t hello/topic -a localhost:1883 -c clientId
